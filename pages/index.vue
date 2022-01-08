@@ -10,14 +10,15 @@
       <div class="search-wrapper">
         <div class="hospital-search">
           <el-autocomplete
-            v-model="state"
+            v-model="parms.detail"
             :fetch-suggestions="querySearchAsync"
             class="search-input"
-            prefix-icon="el-icon-search"
+            prefix-icon="el-icon-tab"
             placeholder="你想找什么？"
             @select="handleSelect"
+            @keyup.enter.native="getList"
           >
-            <span slot="suffix" class="search-btn v-link highlight clickable selected">搜索 </span>
+            <span slot="suffix" class="search-btn v-link highlight clickable selected" @click="getList">搜索 </span>
           </el-autocomplete>
         </div>
       </div>
@@ -165,23 +166,20 @@ import dictApi from '@/api/dict'
 export default {
   data() {
     return {
-      searchObj: {},
-      state: '',
       // 搜索框的数据绑定
       parms: {
-        detail: '',
-        industry: '',
-        provinceCode: '',
-        cityCode: '',
-        curentPage: 1,
-        pageSize: 10,
-        total: 0
+        detail: '', // 搜索栏内容
+        industry: '', // 激活的行业
+        provinceCode: '', //  激活的省code
+        cityCode: '', // 激活的市code
+        curentPage: 1, // 显示第一页
+        pageSize: 10, // 每页显示十条内容
+        total: 0 // 搜索总数
       },
       page: 1,
       limit: 10,
       list: [],
 
-      detail: '', // 搜索框内容
       industryList: [], // 各行业集合
       districtList: [], // 地区集合
 
@@ -218,12 +216,16 @@ export default {
           }
         })
 
+      // 初始化搜索框内容
+      // this.parms.detail = ''
       // 查询第一页外发信息数据
       this.getList()
     },
 
-    // 查询医院列表
+    // 查询mog信息列表
     getList() {
+      // 清空展示列表
+      this.list = []
       mogApi.getPageList(this.parms)
         .then(response => {
           for (const i in response.data.records) {
@@ -234,34 +236,42 @@ export default {
         })
     },
 
-    // 根据医院等级查询
-    industrytypeSelect(hostype, index) {
-      // 准备数据
+    // 根据 具体行业 查询
+    industrytypeSelect(industry, index) {
+      // 清空mog列表
       this.list = []
+      // 设置默认展示第一页
       this.page = 1
+      // 更改搜索条件：行业编号(industry)
+      this.parms.industry = industry
+      // 激活选中<行业>集合文字高亮
       this.industryActiveIndex = index
-      this.searchObj.hostype = hostype
-      // 调用查询医院列表方法
+      // 调用查询mog列表方法
       this.getList()
     },
 
-    // 根据地区查询医院
-    districtSelect(districtCode, index) {
+    // 点击地区事件，根据 省份地区 查询mog列表
+    districtSelect(provinceCode, index) {
+      // 清空mog列表
       this.list = []
+      // 设置默认展示第一页
       this.page = 1
-      this.parms.provinceCode = districtCode
+      // 更改搜索条件：省编号(provinceCode)
+      this.parms.provinceCode = provinceCode
+      // 激活选中<省>文字高亮
       this.provinceActiveIndex = index
-      this.searchObj.districtCode = districtCode
       this.getList()
     },
 
     // 在输入框输入值，弹出下拉框，显示相关内容
-    querySearchAsync(queryString, cb) {
-      // this.searchObj = []
-      if (queryString === '') return
-      mogApi.getByHosname(queryString).then(response => {
-        for (let i = 0, len = response.data.length; i <len; i++) {
+    querySearchAsync(detail, cb) {
+      if (detail === '') return
+      mogApi.getByDetail(detail).then(response => {
+        // 将最多只有5条的结果赋值给搜索框提示内容
+        const len = response.data.length>5 ? 5 : response.data.length
+        for (let i = 0; i <len; i++) {
           response.data[i].value = response.data[i].ogTitle
+          console.log(len)
         }
         cb(response.data)
       })
@@ -269,12 +279,13 @@ export default {
 
     // 在下拉框选择某一个内容，执行下面方法，跳转到详情页面中
     handleSelect(item) {
-      window.location.href = 'http://localhost:8089/client/api/business/ToMogDetail/' + item.ogId
+      // 跳转到动态路由page/mog下的_ogid.vue
+      window.location.href = '/mog/' + item.ogId
     },
 
     // 点击某个医院名称，跳转到详情页面中
     show(ogId) {
-      window.location.href = 'http://localhost:8089/client/api/business/ToMogDetail/' + ogId
+      window.location.href = '/mog/' + ogId
     }
   }
 }

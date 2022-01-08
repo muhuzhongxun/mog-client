@@ -1,5 +1,4 @@
 <template>
-
   <div class="header-container">
     <div class="wrapper">
       <!-- logo -->
@@ -16,7 +15,7 @@
               :fetch-suggestions="querySearchAsync"
               :trigger-on-focus="false"
               class="search-input"
-              prefix-icon="el-icon-search"
+              prefix-icon="el-icon-share"
               placeholder="点击输入医院名称"
               @select="handleSelect"
             >
@@ -55,19 +54,22 @@ export default {
   },
   methods: {
     // 在输入框输入值，弹出下拉框，显示相关内容
-    querySearchAsync(queryString, cb) {
-      // this.searchObj = []
-      if (queryString === '') return
-      mogApi.getByHosname(queryString).then(response => {
-        for (let i = 0, len = response.data.length; i <len; i++) {
+    querySearchAsync(detail, cb) {
+      if (detail === '') return
+      mogApi.getByDetail(detail).then(response => {
+        // 将最多只有5条的结果赋值给搜索框提示内容
+        const len = response.data.length>5 ? 5 : response.data.length
+        for (let i = 0; i <len; i++) {
           response.data[i].value = response.data[i].ogTitle
+          console.log(len)
         }
         cb(response.data)
       })
     },
+
     // 在下拉框选择某一个内容，执行下面方法，跳转到详情页面中
     handleSelect(item) {
-      window.location.href = 'http://localhost:8089/client/api/business/ToMogDetail/' + item.ogId
+      window.location.href = '/mog/' + item.ogId
     }
   }
 }
