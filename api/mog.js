@@ -14,25 +14,25 @@ export default {
   },
 
   // 根据名称查询信息，用于搜索框提示栏展示 parms-> detail
-  getByDetail(parms) {
+  getAllMOG() {
     return request({
-      url: `${api_name}/FlexibleQueryMog/${parms}`,
+      url: `${api_name}/findAllMogList`,
       method: 'get'
     })
   },
 
   // 根据id查询mog详细信息
-  show(hoscode) {
+  show(ogId) {
     return request({
-      url: `${api_name}/${hoscode}`,
+      url: `${api_name}/findMogDetail/${ogId}`,
       method: 'get'
     })
   },
 
-  // 根据医院编号查询科室
-  findDepartment(hoscode) {
+  // 根据发布者id查询其相关发布信息种类以及详情
+  findAllPublishMog(userId) {
     return request({
-      url: `${api_name}/department/${hoscode}`,
+      url: `${api_name}/findAllPublishMog/${userId}`,
       method: 'get'
     })
   }

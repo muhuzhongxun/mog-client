@@ -16,7 +16,7 @@
               :trigger-on-focus="false"
               class="search-input"
               prefix-icon="el-icon-share"
-              placeholder="点击输入医院名称"
+              placeholder="点击输入你想要的"
               @select="handleSelect"
             >
               <span slot="suffix" class="search-btn v-link highlight clickable selected">搜索 </span>

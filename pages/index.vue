@@ -70,10 +70,10 @@
                   </div>
                 </div>
               </div>
-              <!-- <img
-                :src="'data:image/jpeg;base64,'+item.logoData"
-                :alt="item.industry"
-                class="hospital-img"> -->
+              <!-- 外发信息的展示图 -->
+              <img
+                :src="'http://127.0.0.1:8089/images/20220216205508b55b6ded95be49118a4b68ab1fee1dea.jpg'"
+                class="hospital-img">
             </div>
           </div>
         </div>
@@ -83,20 +83,19 @@
         <div class="common-dept">
           <div class="header-wrapper">
 
-            <div class="title"> 常见科室</div>
+            <div class="title"> 常见种类</div>
             <div class="all-wrapper"><span>全部</span>
               <span class="iconfont icon"></span>
             </div>
           </div>
           <div class="content-wrapper">
-            <span class="item v-link clickable dark">神经内科 </span>
-            <span class="item v-link clickable dark">消化内科 </span>
-            <span class="item v-link clickable dark">呼吸内科 </span>
-            <span class="item v-link clickable dark">内科 </span>
-            <span class="item v-link clickable dark">神经外科 </span>
-            <span class="item v-link clickable dark">妇科 </span>
-            <span class="item v-link clickable dark"> 产科 </span>
-            <span class="item v-link clickable dark">儿科 </span>
+            <span class="item v-link clickable dark">摆挂饰类</span>
+            <span class="item v-link clickable dark">个人饰品</span>
+            <span class="item v-link clickable dark">办公文具</span>
+            <span class="item v-link clickable dark">家纺产品</span>
+            <span class="item v-link clickable dark">礼品包装</span>
+            <span class="item v-link clickable dark">家居生活</span>
+            <span class="item v-link clickable dark">办公装潢</span>
           </div>
         </div>
         <div class="space">
@@ -115,15 +114,15 @@
           <div class="content-wrapper">
             <div class="notice-wrapper">
               <div class="point"/>
-              <span class="notice v-link clickable dark">关于延长北京大学国际医院放假的通知 </span>
+              <span class="notice v-link clickable dark">关于延长北京大学国际放假的通知 </span>
             </div>
             <div class="notice-wrapper">
               <div class="point"/>
-              <span class="notice v-link clickable dark">北京中医药大学东方医院部分科室医生门诊医 </span>
+              <span class="notice v-link clickable dark">谨防上当受骗</span>
             </div>
             <div class="notice-wrapper">
               <div class="point"/>
-              <span class="notice v-link clickable dark"> 武警总医院号源暂停更新通知 </span>
+              <span class="notice v-link clickable dark">欢迎各大供应商入驻</span>
             </div>
           </div>
         </div>
@@ -133,25 +132,26 @@
               <div class="icon-wrapper">
                 <span class="iconfont title-icon"></span>
               </div>
-              <span class="title">停诊公告</span>
+              <span class="title">最新加工厂家</span>
             </div>
-            <div class="all-wrapper">
+            <!-- <div class="all-wrapper">
               <span>全部</span>
               <span class="iconfont icon"></span>
-            </div>
+            </div> -->
           </div>
           <div class="content-wrapper">
             <div class="notice-wrapper">
               <div class="point"/>
-              <span class="notice v-link clickable dark"> 中国人民解放军总医院第六医学中心(原海军总医院)呼吸内科门诊停诊公告 </span>
+              <span class="notice v-link clickable dark">·莆田市祯祥鸿运工艺品有限公司</span>
             </div>
             <div class="notice-wrapper">
               <div class="point"/>
-              <span class="notice v-link clickable dark"> 首都医科大学附属北京潞河医院老年医学科门诊停诊公告 </span>
+              <span class="notice v-link clickable dark">·湖南博雅礼品有限公司</span>
             </div>
             <div class="notice-wrapper">
               <div class="point"/>
-              <span class="notice v-link clickable dark">中日友好医院中西医结合心内科门诊停诊公告 </span>
+              <span class="notice v-link clickable dark">·东莞市昱明鞋材有限公司</span>
+              <!-- ·山东久道贸易有限公司·东莞市富特王五金制品有限公司·东莞市沃冶合金科技有限公司  -->
             </div>
           </div>
         </div>
@@ -180,6 +180,8 @@ export default {
       limit: 10,
       list: [],
 
+      deatilList: [], // 搜索栏远程搜索内容 由this.getQueryDetail()得到
+
       industryList: [], // 各行业集合
       districtList: [], // 地区集合
 
@@ -189,6 +191,7 @@ export default {
   },
   created() {
     this.init()
+    this.getQueryDetail()
   },
   methods: {
     // 查询各行业数据列表 和 所有地区列表
@@ -265,16 +268,17 @@ export default {
 
     // 在输入框输入值，弹出下拉框，显示相关内容
     querySearchAsync(detail, cb) {
-      if (detail === '') return
-      mogApi.getByDetail(detail).then(response => {
-        // 将最多只有5条的结果赋值给搜索框提示内容
-        const len = response.data.length>5 ? 5 : response.data.length
-        for (let i = 0; i <len; i++) {
-          response.data[i].value = response.data[i].ogTitle
-          console.log(len)
-        }
-        cb(response.data)
-      })
+      var results = detail ? this.deatilList.filter(this.createStateFilter(detail)) : this.deatilList
+      console.log(results)
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(() => {
+        cb(results)
+      }, 1000 * Math.random())
+    },
+    createStateFilter(queryString) {
+      return (deatilList) => {
+        return (deatilList.value.indexOf(queryString) === 0)
+      }
     },
 
     // 在下拉框选择某一个内容，执行下面方法，跳转到详情页面中
@@ -286,7 +290,30 @@ export default {
     // 点击某个医院名称，跳转到详情页面中
     show(ogId) {
       window.location.href = '/mog/' + ogId
+    },
+
+    // 初始化获得搜索框需要的提示信息
+    getQueryDetail() {
+      mogApi.getAllMOG().then(response => {
+        // 将最多只有5条的结果赋值给搜索框提示内容
+        response.data.forEach(element => {
+          this.deatilList.push({ 'value': element.ogTitle })
+        })
+      })
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+// 展示框展示图片
+img{
+  width: 100%;
+  height: 100%;
+}
+
+// 通过限制最小高度，解决了指示器激活时，激活中的指示器高度提高到30px，而导致其余的元素跟随着抖动
+::v-deep .el-carousel__indicators--outside {
+  min-height: 30px;
+}
+</style>
