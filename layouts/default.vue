@@ -12,6 +12,10 @@
       <!-- 公共底 -->
       <myfooter/>
     </div>
+    <!-- 浮动聊天窗 -->
+    <div>
+      <m-chat-test />
+    </div>
   </div>
 </template>
 <script>
@@ -22,11 +26,12 @@ import '~/assets/css/main.css'
 
 import myheader from './myheader'
 import myfooter from './myfooter'
+import MChatTest from './MChatExample'
 
 export default {
 
   components: {
-    myheader, myfooter
+    myheader, myfooter, MChatTest
   }
 
   // mounted() {

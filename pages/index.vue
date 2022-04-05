@@ -23,6 +23,39 @@
         </div>
       </div>
     </div>
+    <el-row :gutter="20">
+      <el-col
+        v-for="(item, index) in iconList"
+        :key="index"
+        :xs="12"
+        :sm="6"
+        :md="6"
+        :lg="6"
+        :xl="3"
+      >
+        <!-- <router-link :to="item.link" target="_blank"> -->
+        <el-card
+          class="icon-panel"
+          shadow="hover"
+          @click.native="GetEchartsDate(item)"
+          @dblclick.native="ToDetail(item)"
+        >
+          <!-- <vab-icon
+              :style="{ color: item.color }"
+              :icon="['fas', item.icon]"
+            /> -->
+          <div
+            :style="{background: item.panelColor}"
+            :class="item.panelIcon"
+            class="icon-icon"
+          />
+          <div class="value">
+            <h1>{{ item.panelTitle }}</h1>
+          </div>
+        </el-card>
+        <!-- </router-link> -->
+      </el-col>
+    </el-row>
     <!-- bottom -->
     <div class="bottom">
       <div class="left">
@@ -38,7 +71,7 @@
                   :class="industryActiveIndex == index ? 'selected' : ''"
                   :key="item.id"
                   class="item v-link clickable"
-                  @click="industrytypeSelect(item.value, index)">{{ item.name }}</span>
+                  @click="industrytypeSelect(item.name, index)">{{ item.name }}</span>
               </div>
 
             </div>
@@ -51,7 +84,7 @@
                   :class="provinceActiveIndex == index ? 'selected' : ''"
                   :key="item.id"
                   class="item v-link clickable"
-                  @click="districtSelect(item.value, index)">{{ item.name }}</span>
+                  @click="districtSelect(item.name, index)">{{ item.name }}</span>
               </div>
             </div>
           </div>
@@ -162,6 +195,7 @@
 <script>
 import mogApi from '@/api/mog'
 import dictApi from '@/api/dict'
+import PanelApi from '@/api/panel'
 
 export default {
   data() {
@@ -182,6 +216,8 @@ export default {
 
       deatilList: [], // 搜索栏远程搜索内容 由this.getQueryDetail()得到
 
+      iconList: [], // 浏览主页的卡片信息
+
       industryList: [], // 各行业集合
       districtList: [], // 地区集合
 
@@ -191,6 +227,7 @@ export default {
   },
   created() {
     this.init()
+    this.getPanelList()
     this.getQueryDetail()
   },
   methods: {
@@ -245,8 +282,13 @@ export default {
       this.list = []
       // 设置默认展示第一页
       this.page = 1
+
       // 更改搜索条件：行业编号(industry)
       this.parms.industry = industry
+      if (industry === '全部') {
+        this.parms.industry = ''
+      }
+
       // 激活选中<行业>集合文字高亮
       this.industryActiveIndex = index
       // 调用查询mog列表方法
@@ -261,6 +303,10 @@ export default {
       this.page = 1
       // 更改搜索条件：省编号(provinceCode)
       this.parms.provinceCode = provinceCode
+      if (provinceCode === '全部') {
+        this.parms.provinceCode = ''
+      }
+
       // 激活选中<省>文字高亮
       this.provinceActiveIndex = index
       this.getList()
@@ -270,6 +316,7 @@ export default {
     querySearchAsync(detail, cb) {
       var results = detail ? this.deatilList.filter(this.createStateFilter(detail)) : this.deatilList
       console.log(results)
+      console.log(this.deatilList.value)
       clearTimeout(this.timeout)
       this.timeout = setTimeout(() => {
         cb(results)
@@ -292,10 +339,16 @@ export default {
       window.location.href = '/mog/' + ogId
     },
 
+    // 获取卡片菜单信息
+    getPanelList() {
+      PanelApi.findByPosition('浏览主页').then(response => {
+        this.iconList = response.data
+      })
+    },
+
     // 初始化获得搜索框需要的提示信息
     getQueryDetail() {
       mogApi.getAllMOG().then(response => {
-        // 将最多只有5条的结果赋值给搜索框提示内容
         response.data.forEach(element => {
           this.deatilList.push({ 'value': element.ogTitle })
         })
@@ -316,4 +369,36 @@ img{
 ::v-deep .el-carousel__indicators--outside {
   min-height: 30px;
 }
+
+// 仪表板卡片样式
+.icon-panel .icon-icon{
+  padding: 20px 15px;
+  font-size: 50px
+}
+.icon-panel .icon-icon,
+.icon-panel .value {
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+}
+.el-row{
+  padding: 20px 0 0 0 ;
+}
+    //用穿透 .el-card__body默认的padding: 20px
+.el-card {
+  margin-bottom: 20px;
+  ::v-deep .el-card__body{
+    padding: inherit !important
+  }
+}
+.el-card__body .value h1 {
+  font-weight: 300;
+}
+.el-card__body .value h1,
+.el-card__body .value p{
+  margin: 0;
+  padding: 0;
+  color: #c6cad6;
+}
+
 </style>

@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://localhost:8089',
+  baseURL: 'http://127.0.0.1:8089',
   timeout: 15000 // 请求超时时间
 })
 // http request 拦截器
